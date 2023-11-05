@@ -1,15 +1,15 @@
 package com.example.assesment.goalmanagement.service;
 
-import com.example.assesment.goalmanagement.contract.GoalRequest;
-import com.example.assesment.goalmanagement.contract.GoalResponse;
-import com.example.assesment.goalmanagement.contract.GoalUpdateRequest;
-import com.example.assesment.goalmanagement.contract.GoalUpdateResponse;
+import com.example.assesment.goalmanagement.contract.*;
 import com.example.assesment.goalmanagement.exception.GoalNotFoundException;
+import com.example.assesment.goalmanagement.exception.GoalUpdateNotFoundException;
 import com.example.assesment.goalmanagement.model.Goal;
 import com.example.assesment.goalmanagement.model.GoalUpdate;
 import com.example.assesment.goalmanagement.repository.GoalRepository;
 import com.example.assesment.goalmanagement.repository.GoalUpdateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,13 +27,15 @@ public class GoalService {
         this.goalRepository = goalRepository;
         this.goalUpdateRepository=goalUpdateRepository;
     }
-    public List<GoalResponse> findAllGoals() {
-        List<Goal> goals = goalRepository.findAll();
-        return goals.stream()
+    public List<GoalResponse> findAllGoals(int pageNumber, int pageSize) {
+        Page<Goal> goalPage=goalRepository.findAll(PageRequest.of(pageNumber, pageSize));
+//        List<Goal> goals = goalRepository.findAll();
+
+        return goalPage.getContent().stream()
                 .map(this::mapToGoalResponse)
                 .collect(Collectors.toList());
     }
-    private GoalResponse mapToGoalResponse(Goal goal) {
+    public GoalResponse mapToGoalResponse(Goal goal) {
         List<GoalUpdateResponse> updateResponses = goal.getUpdates().stream()
                 .map(this::mapToGoalUpdateResponse)
                 .collect(Collectors.toList());
@@ -47,7 +49,7 @@ public class GoalService {
                 .updates(updateResponses)
                 .build();
     }
-    private GoalUpdateResponse mapToGoalUpdateResponse(GoalUpdate update) {
+    public GoalUpdateResponse mapToGoalUpdateResponse(GoalUpdate update) {
         return GoalUpdateResponse.builder()
                 .id(update.getId())
                 .updateText(update.getUpdateText())
@@ -94,7 +96,6 @@ public class GoalService {
                        .updates(new ArrayList<>())
                 .build();
     }
-
     public String updateGoalById(long goalId, GoalRequest goalRequest) {
         Goal goal=goalRepository.findById(goalId).orElse(null);
         if(goal==null){
@@ -111,16 +112,14 @@ public class GoalService {
                 .build();
         Goal saved=goalRepository.save(updated);
         return "Successfully updated the goal with ID " +saved.getId();
-
     }
-
     public void deleteGoalById(Long goalId) {
         if (!goalRepository.existsById((goalId))) {
             throw new GoalNotFoundException("Goal with ID " + goalId + " not found.");
         }
         goalRepository.deleteById(goalId);
     }
-    public GoalUpdateResponse updateTextAndProgress(long goalId, GoalUpdateRequest goalUpdateRequest) {
+    public GoalUpdateResponse addGoalUpdateToAGoal(long goalId, GoalUpdateRequest goalUpdateRequest) {
         Goal goal=goalRepository.findById(goalId)
                 .orElseThrow(()-> new
                         GoalNotFoundException("Goal not found"));
@@ -138,9 +137,54 @@ public class GoalService {
                 .updateText(goalUpdateSaved.getUpdateText())
                 .updatedDate(goalUpdateSaved.getUpdatedDate())
                 .progress(goalUpdateSaved.getProgress())
+               .build();
+    }
+
+    public String deleteGoalUpdate(long goalId, long goalUpdateId) {
+        Goal goal=goalRepository.findById(goalId)
+                .orElseThrow(()-> new
+                        GoalNotFoundException("Goal not found"));
+        GoalUpdate goalUpdate=goal.getUpdates().stream()
+                        .filter(g ->g.getId()==goalUpdateId)
+                                .findFirst().orElse(null);
+        if(goalUpdate==null)
+        {throw new GoalUpdateNotFoundException("GoalUpdate not found");}
+        goal.getUpdates().remove(goalUpdate);
+        goalUpdateRepository.delete(goalUpdate);
+        goalRepository.save(goal);
+        return "Successfully deleted the GoalUpdate";
+    }
+    public GoalUpdateResponse updateGoalUpdate(long goalId, long goalUpdateId, GoalUpdateRequest goalUpdateRequest) {
+        Goal goal=goalRepository.findById(goalId)
+                .orElseThrow(()-> new
+                        GoalNotFoundException("Goal not found"));
+GoalUpdate goalUpdate=goal.getUpdates().stream()
+        .filter(g->g.getId()==goalUpdateId)
+        .findFirst().orElse(null);
+        if(goalUpdate==null)
+        {throw new GoalUpdateNotFoundException("GoalUpdate not found");}
+        GoalUpdate updatedGoalUpdate = GoalUpdate.builder()
+                .id(goalUpdate.getId())
+                .updatedDate(LocalDateTime.now())
+                .updateText(goalUpdateRequest.getUpdateText())
+                .progress(goalUpdateRequest.getProgress())
                 .build();
+       GoalUpdate saved= goalUpdateRepository.save(updatedGoalUpdate);
+       goal.calculateProgress();
+        return GoalUpdateResponse.builder()
+                .id(saved.getId())
+                .updatedDate(saved.getUpdatedDate())
+                .updateText(saved.getUpdateText())
+                .progress(saved.getProgress())
+                .build();
+    }
 
-
-
+    public GoalProgressResponse getGoalProgressById(long goalId) {
+        Goal goal=goalRepository.findById(goalId)
+                .orElseThrow(()-> new
+                        GoalNotFoundException("Goal not found"));
+        return GoalProgressResponse.builder()
+                .progress(goal.getProgress())
+                .build();
     }
 }
