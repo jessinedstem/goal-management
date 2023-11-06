@@ -29,8 +29,6 @@ public class GoalService {
     }
     public List<GoalResponse> findAllGoals(int pageNumber, int pageSize) {
         Page<Goal> goalPage=goalRepository.findAll(PageRequest.of(pageNumber, pageSize));
-//        List<Goal> goals = goalRepository.findAll();
-
         return goalPage.getContent().stream()
                 .map(this::mapToGoalResponse)
                 .collect(Collectors.toList());

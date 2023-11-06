@@ -17,7 +17,8 @@ public class GoalController {
     private final GoalService goalService;
     @Autowired
     public GoalController(GoalService goalService){
-            this.goalService=goalService;
+
+        this.goalService=goalService;
 }
     @GetMapping()
     public ResponseEntity<List<GoalResponse>> getAllGoals(@RequestParam(defaultValue = "0")int page,
@@ -30,9 +31,8 @@ public class GoalController {
         GoalResponse goal=goalService.findGoalById(goalId);
         return ResponseEntity.ok(goal);
     }
-
     @PostMapping()
-    public ResponseEntity<GoalResponse> createAllGoals(@Valid @RequestBody GoalRequest goalRequest) {
+    public ResponseEntity<GoalResponse> createAGoal(@Valid @RequestBody GoalRequest goalRequest) {
         GoalResponse response = goalService.createGoal(goalRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
