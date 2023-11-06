@@ -5,7 +5,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class GoalRequest {
     @NotEmpty(message = "Title should not be empty")
