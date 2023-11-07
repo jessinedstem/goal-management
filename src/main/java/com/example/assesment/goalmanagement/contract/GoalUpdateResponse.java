@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter@NoArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class GoalUpdateResponse {

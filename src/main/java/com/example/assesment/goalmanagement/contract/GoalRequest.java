@@ -3,7 +3,6 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import java.time.LocalDate;
 @Getter
-@Setter
 @AllArgsConstructor
 @Builder
 public class GoalRequest {

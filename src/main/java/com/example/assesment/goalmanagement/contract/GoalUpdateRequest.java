@@ -3,7 +3,6 @@ package com.example.assesment.goalmanagement.contract;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
