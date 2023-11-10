@@ -1,13 +1,17 @@
 package com.example.assesment.goalmanagement.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.Getter;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import java.time.LocalDate;
 import java.util.List;
-
 @Entity
 @Getter
 @Table(name = "goal")

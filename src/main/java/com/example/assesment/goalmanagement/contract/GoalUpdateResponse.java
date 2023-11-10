@@ -1,7 +1,8 @@
 package com.example.assesment.goalmanagement.contract;
-
-import lombok.*;
-import java.time.LocalDate;
+import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Getter

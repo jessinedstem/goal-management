@@ -1,6 +1,10 @@
 package com.example.assesment.goalmanagement.service;
 
-import com.example.assesment.goalmanagement.contract.*;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
+import com.example.assesment.goalmanagement.contract.GoalUpdateRequest;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalUpdateResponse;
+import com.example.assesment.goalmanagement.contract.GoalProgressResponse;
 import com.example.assesment.goalmanagement.exception.GoalNotFoundException;
 import com.example.assesment.goalmanagement.exception.GoalUpdateNotFoundException;
 import com.example.assesment.goalmanagement.model.Goal;
@@ -11,17 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class GoalService {
     private final GoalRepository goalRepository;
     private final GoalUpdateRepository goalUpdateRepository;
-
     @Autowired
     public GoalService(GoalRepository  goalRepository,GoalUpdateRepository goalUpdateRepository) {
         this.goalRepository = goalRepository;

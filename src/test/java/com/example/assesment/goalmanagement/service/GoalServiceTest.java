@@ -1,6 +1,10 @@
 package com.example.assesment.goalmanagement.service;
 
-import com.example.assesment.goalmanagement.contract.*;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
+import com.example.assesment.goalmanagement.contract.GoalProgressResponse;
+import com.example.assesment.goalmanagement.contract.GoalUpdateResponse;
+import com.example.assesment.goalmanagement.contract.GoalUpdateRequest;
 import com.example.assesment.goalmanagement.exception.GoalNotFoundException;
 import com.example.assesment.goalmanagement.exception.GoalUpdateNotFoundException;
 import com.example.assesment.goalmanagement.model.Goal;
@@ -17,15 +21,18 @@ import org.springframework.data.domain.PageRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.anyLong;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 public class GoalServiceTest {
     @InjectMocks
@@ -43,7 +50,6 @@ public class GoalServiceTest {
 
     @Test
     public void testFindAllGoals() {
-        // Mock data
         List<Goal> goals = new ArrayList<>();
         goals.add(new Goal(1L, "Goal 1", "Description 1", LocalDate.now(), LocalDate.now().plusDays(7), 50, new ArrayList<>()));
         goals.add(new Goal(2L, "Goal 2", "Description 2", LocalDate.now(), LocalDate.now().plusDays(14), 75, new ArrayList<>()));
