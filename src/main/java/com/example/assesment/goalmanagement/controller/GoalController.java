@@ -1,14 +1,24 @@
 package com.example.assesment.goalmanagement.controller;
-
-import com.example.assesment.goalmanagement.contract.*;
-import com.example.assesment.goalmanagement.model.Goal;
-import com.example.assesment.goalmanagement.model.GoalUpdate;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalUpdateResponse;
+import com.example.assesment.goalmanagement.contract.GoalUpdateRequest;
+import com.example.assesment.goalmanagement.contract.GoalProgressResponse;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
 import com.example.assesment.goalmanagement.service.GoalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @RestController

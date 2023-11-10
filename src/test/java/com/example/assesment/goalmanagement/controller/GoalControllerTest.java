@@ -1,6 +1,10 @@
 package com.example.assesment.goalmanagement.controller;
 
-import com.example.assesment.goalmanagement.contract.*;
+import com.example.assesment.goalmanagement.contract.GoalUpdateRequest;
+import com.example.assesment.goalmanagement.contract.GoalUpdateResponse;
+import com.example.assesment.goalmanagement.contract.GoalProgressResponse;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
 import com.example.assesment.goalmanagement.model.Goal;
 import com.example.assesment.goalmanagement.service.GoalService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,16 +15,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @SpringBootTest
 @AutoConfigureMockMvc

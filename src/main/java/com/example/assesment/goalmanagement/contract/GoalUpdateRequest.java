@@ -1,7 +1,10 @@
 package com.example.assesment.goalmanagement.contract;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
+import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
