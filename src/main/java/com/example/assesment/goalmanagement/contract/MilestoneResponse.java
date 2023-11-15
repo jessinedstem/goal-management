@@ -1,13 +1,15 @@
 package com.example.assesment.goalmanagement.contract;
 
-import lombok.Getter;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GoalProgressResponse {
-    private int progress;
+public class MilestoneResponse {
+    private long id;
+    private int completedPercentage;
 }

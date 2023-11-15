@@ -1,9 +1,10 @@
 package com.example.assesment.goalmanagement.contract;
-import lombok.Getter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -13,5 +14,6 @@ public class GoalUpdateResponse {
     private long id;
     private LocalDateTime updatedDate;
     private String updateText;
-    private int progress;
+    private MilestoneResponse milestone;
+    private int completedTasks;
 }

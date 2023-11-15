@@ -4,32 +4,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@Table(name = "goal_update")
+@Entity
+@Builder
+@Table(name = "milestone")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class GoalUpdate {
+public class Milestone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String updateText;
-    private LocalDateTime updatedDate;
+    private int completedPercentage;
 
-    @OneToOne
-    @JoinColumn(name = "milestone_id")
-    private Milestone milestone;
-
-    private int completedTasks;
+    public int calculateProgressValue(int completedTasks, int totalTasks) {
+        if (totalTasks == 0) {
+            return 0;
+        } else {
+            return (int) (((double) completedTasks / totalTasks) * 100);
+        }
+    }
 }

@@ -1,10 +1,12 @@
 package com.example.assesment.goalmanagement.contract;
-import lombok.Getter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+
 import java.time.LocalDate;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,6 +17,7 @@ public class GoalResponse {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int progress;
+    private int milestone;
     private List<GoalUpdateResponse> updates;
+    private int totalTasks;
 }
