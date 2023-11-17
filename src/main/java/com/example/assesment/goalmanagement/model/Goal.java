@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,16 +30,14 @@ public class Goal {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int milestone;
-    @OneToMany private List<GoalUpdate> updates;
-
-    private int totalTasks;
-
-    public void updateMilestoneInGoal(int completedTasks, int totalTasks) {
-        if (totalTasks == 0) {
-            this.milestone = 0;
+    private double completedPercentage;
+    @OneToMany private List<Milestone> milestones;
+    public void updatePercentageInGoal(long completedMilestones, long totalMilestones) {
+        if (totalMilestones == 0) {
+            this.completedPercentage = 0.0;
         } else {
-            this.milestone = (int) (((double) completedTasks / totalTasks) * 100);
-        }
+            double percentage = ((double) completedMilestones / totalMilestones) * 100;
+            DecimalFormat decimalFormat = new DecimalFormat("#.##");
+            this.completedPercentage = Double.parseDouble(decimalFormat.format(percentage));}
     }
 }
