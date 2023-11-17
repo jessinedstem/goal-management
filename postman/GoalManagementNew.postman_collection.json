@@ -1,19 +1,19 @@
 {
 	"info": {
-		"_postman_id": "ebca2e6c-cfc1-4bcd-b92a-6bd20bb35a31",
-		"name": "Goal Management",
+		"_postman_id": "6ac3dbc7-29ff-424c-bb5c-340ebe35d920",
+		"name": "GoalManagementNew",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30274173"
 	},
 	"item": [
 		{
-			"name": "Create Goal",
+			"name": "Create A Goal",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"title\": \"GoalNew\",\r\n    \"description\": \"goal-1\",\r\n    \"startDate\": \"2023-12-31\",\r\n    \"endDate\": \"2023-12-31\",\r\n    \"totalTasks\":10\r\n}",
+					"raw": "{\r\n    \"title\": \"Complete Project-IV\",\r\n    \"description\": \"Finish all project tasks for Project-IV\",\r\n    \"startDate\": \"2023-11-16\",\r\n    \"endDate\": \"2023-12-31\"\r\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -35,12 +35,12 @@
 			"response": []
 		},
 		{
-			"name": "Get All Goals",
+			"name": "Find All Goals",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/goals?page=0&size=10",
+					"raw": "http://localhost:8080/goals?page=0&size=5",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -56,7 +56,7 @@
 						},
 						{
 							"key": "size",
-							"value": "10"
+							"value": "5"
 						}
 					]
 				}
@@ -64,12 +64,12 @@
 			"response": []
 		},
 		{
-			"name": "Get Goal By Id",
+			"name": "Get A Goal By Id",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/goals/852",
+					"raw": "http://localhost:8080/goals/254",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -77,7 +77,27 @@
 					"port": "8080",
 					"path": [
 						"goals",
-						"852"
+						"254"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete A Goal By Id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/goals/153",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"goals",
+						"153"
 					]
 				}
 			},
@@ -90,7 +110,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n \"title\": \"goal-again\",\r\n    \"description\": \"new goal\",\r\n    \"startDate\": \"2023-12-31\",\r\n    \"endDate\": \"2023-12-31\"\r\n  }",
+					"raw": "{\r\n    \"title\":\"NewGoal-1\",\r\n    \"description\":\"new Goal-ABC\",\r\n    \"startDate\":\"2023-11-21\",\r\n    \"endDate\":\"2023-12-31\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -98,7 +118,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/goals/352",
+					"raw": "http://localhost:8080/goals/252",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -106,19 +126,28 @@
 					"port": "8080",
 					"path": [
 						"goals",
-						"352"
+						"252"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Delete Goal By Id,Goal Not Found",
+			"name": "Delete Milestone",
 			"request": {
 				"method": "DELETE",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"updateText\":\"New ABC\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://localhost:8080/goals/755",
+					"raw": "http://localhost:8080/goals/252/milestone/6",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -126,20 +155,22 @@
 					"port": "8080",
 					"path": [
 						"goals",
-						"755"
+						"252",
+						"milestone",
+						"6"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Add Goal Update To A Goal",
+			"name": "Add Milestone To Goal",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"updateText\":\"Learn cricket\",\r\n    \"completedTasks\":1\r\n}",
+					"raw": "{\r\n    \"updateText\":\"New goal 123\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -147,7 +178,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/goals/852",
+					"raw": "http://localhost:8080/goals/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -155,42 +186,20 @@
 					"port": "8080",
 					"path": [
 						"goals",
-						"852"
+						"2"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Delete GoalUpdate From A Goal",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/goals/852/goal-updates/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"goals",
-						"852",
-						"goal-updates",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update GoalUpdate",
+			"name": "Update Milestone",
 			"request": {
 				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"updateText\":\"new update\",\r\n    \"completedTasks\":6\r\n}",
+					"raw": "{\r\n    \"updateText\":\"New one\",\r\n    \"completed\":true\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -198,7 +207,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/goals/852/3",
+					"raw": "http://localhost:8080/goals/252/3",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -206,7 +215,7 @@
 					"port": "8080",
 					"path": [
 						"goals",
-						"852",
+						"252",
 						"3"
 					]
 				}
