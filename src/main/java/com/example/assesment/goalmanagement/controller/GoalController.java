@@ -1,6 +1,9 @@
 package com.example.assesment.goalmanagement.controller;
 
-import com.example.assesment.goalmanagement.contract.*;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
+import com.example.assesment.goalmanagement.contract.MilestoneRequest;
+import com.example.assesment.goalmanagement.contract.MilestoneResponse;
 import com.example.assesment.goalmanagement.service.GoalService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -52,8 +55,8 @@ public class GoalController {
 
     @PutMapping("/{goalId}")
     public ResponseEntity<String> updateGoalById(
-            @PathVariable long goalId, @Valid @RequestBody GoalRequestUpdate goalRequestUpdate) {
-        String updated = goalService.updateGoalById(goalId, goalRequestUpdate);
+            @PathVariable long goalId, @Valid @RequestBody GoalRequest goalRequest) {
+        String updated = goalService.updateGoalById(goalId, goalRequest);
         return ResponseEntity.ok(updated);
     }
 
@@ -64,26 +67,26 @@ public class GoalController {
     }
 
     @PostMapping("/{goalId}")
-    public ResponseEntity<GoalUpdateResponse> addGoalUpdateToAGoal(
-            @PathVariable long goalId, @Valid @RequestBody GoalUpdateRequest goalUpdateRequest) {
-        GoalUpdateResponse response = goalService.addGoalUpdateToAGoal(goalId, goalUpdateRequest);
+    public ResponseEntity<MilestoneResponse> addMilestoneToAGoal(
+            @PathVariable long goalId, @Valid @RequestBody MilestoneRequest milestoneRequest) {
+        MilestoneResponse response = goalService.addMilestoneToAGoal(goalId, milestoneRequest);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{goalId}/goal-updates/{goalUpdateId}")
-    public ResponseEntity<String> deleteGoalUpdate(
-            @PathVariable long goalId, @PathVariable long goalUpdateId) {
-        String response = goalService.deleteGoalUpdate(goalId, goalUpdateId);
+    @DeleteMapping("/{goalId}/milestone/{milestoneId}")
+    public ResponseEntity<String> deleteMilestone(
+            @PathVariable long goalId, @PathVariable long milestoneId) {
+        String response = goalService.deleteMilestone(goalId, milestoneId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{goalId}/{goalUpdateId}")
-    public ResponseEntity<GoalUpdateResponse> updateGoalUpdate(
+    @PutMapping("/{goalId}/{milestoneId}")
+    public ResponseEntity<MilestoneResponse> updateMilestone(
             @PathVariable long goalId,
-            @PathVariable long goalUpdateId,
-            @RequestBody GoalUpdateRequest goalUpdateRequest) {
-        GoalUpdateResponse response =
-                goalService.updateGoalUpdate(goalId, goalUpdateId, goalUpdateRequest);
+            @PathVariable long milestoneId,
+            @RequestBody MilestoneRequest milestoneRequest) {
+        MilestoneResponse response =
+                goalService.updateMilestone(goalId, milestoneId, milestoneRequest);
         return ResponseEntity.ok(response);
     }
 }

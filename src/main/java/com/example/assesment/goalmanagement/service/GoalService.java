@@ -1,19 +1,21 @@
 package com.example.assesment.goalmanagement.service;
 
-import com.example.assesment.goalmanagement.contract.*;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
+import com.example.assesment.goalmanagement.contract.GoalRequest;
+import com.example.assesment.goalmanagement.contract.MilestoneRequest;
+import com.example.assesment.goalmanagement.contract.MilestoneResponse;
 import com.example.assesment.goalmanagement.exception.GoalNotFoundException;
-import com.example.assesment.goalmanagement.exception.GoalUpdateNotFoundException;
-import com.example.assesment.goalmanagement.exception.TaskCompletedException;
+import com.example.assesment.goalmanagement.exception.MilestoneNotFoundException;
 import com.example.assesment.goalmanagement.model.Goal;
-import com.example.assesment.goalmanagement.model.GoalUpdate;
 import com.example.assesment.goalmanagement.model.Milestone;
 import com.example.assesment.goalmanagement.repository.GoalRepository;
-import com.example.assesment.goalmanagement.repository.GoalUpdateRepository;
 import com.example.assesment.goalmanagement.repository.MilestoneRepository;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,16 +24,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class GoalService {
     private final GoalRepository goalRepository;
-    private final GoalUpdateRepository goalUpdateRepository;
     private final MilestoneRepository milestoneRepository;
 
     @Autowired
     public GoalService(
             GoalRepository goalRepository,
-            GoalUpdateRepository goalUpdateRepository,
             MilestoneRepository milestoneRepository) {
         this.goalRepository = goalRepository;
-        this.goalUpdateRepository = goalUpdateRepository;
         this.milestoneRepository = milestoneRepository;
     }
 
@@ -43,9 +42,9 @@ public class GoalService {
     }
 
     public GoalResponse mapToGoalResponse(Goal goal) {
-        List<GoalUpdateResponse> updateResponses =
-                goal.getUpdates().stream()
-                        .map(this::mapToGoalUpdateResponse)
+        List<MilestoneResponse> updateResponses =
+                goal.getMilestones().stream()
+                        .map(this::mapToMilestoneResponse)
                         .collect(Collectors.toList());
         return GoalResponse.builder()
                 .id(goal.getId())
@@ -53,17 +52,17 @@ public class GoalService {
                 .description(goal.getDescription())
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())
-                .totalTasks(goal.getTotalTasks())
-                .updates(updateResponses)
+                .milestones(updateResponses)
                 .build();
     }
 
-    public GoalUpdateResponse mapToGoalUpdateResponse(GoalUpdate update) {
-        return GoalUpdateResponse.builder()
+    public MilestoneResponse mapToMilestoneResponse(Milestone update) {
+        return MilestoneResponse.builder()
                 .id(update.getId())
+                .goalId(update.getGoalId())
                 .updateText(update.getUpdateText())
                 .updatedDate(update.getUpdatedDate())
-                .completedTasks(update.getCompletedTasks())
+                .completed(update.isCompleted())
                 .build();
     }
 
@@ -78,33 +77,22 @@ public class GoalService {
                 .description(goal.getDescription())
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())
-                .milestone(goal.getMilestone())
-                .totalTasks(goal.getTotalTasks())
-                .updates(
-                        goal.getUpdates().stream()
+                .completedPercentage(goal.getCompletedPercentage())
+                .milestones(
+                        goal.getMilestones().stream()
                                 .map(
-                                        goalUpdate ->
-                                                GoalUpdateResponse.builder()
-                                                        .id(goalUpdate.getId())
-                                                        .updateText(goalUpdate.getUpdateText())
-                                                        .updatedDate(goalUpdate.getUpdatedDate())
-                                                        .completedTasks(
-                                                                goalUpdate.getCompletedTasks())
-                                                        .milestone(
-                                                                mapMilestoneResponse(
-                                                                        goalUpdate.getMilestone()))
+                                        milestone ->
+                                                MilestoneResponse.builder()
+                                                        .id(milestone.getId())
+                                                        .goalId(goal.getId())
+                                                        .updateText(milestone.getUpdateText())
+                                                        .updatedDate(milestone.getUpdatedDate())
+                                                        .completed(
+                                                                milestone.isCompleted())
+
                                                         .build())
                                 .collect(Collectors.toList()))
                 .build();
-    }
-
-    private MilestoneResponse mapMilestoneResponse(Milestone milestone) {
-        return milestone != null
-                ? MilestoneResponse.builder()
-                        .id(milestone.getId())
-                        .completedPercentage(milestone.getCompletedPercentage())
-                        .build()
-                : null;
     }
 
     public GoalResponse createGoal(GoalRequest goalRequest) {
@@ -114,9 +102,7 @@ public class GoalService {
                         .description(goalRequest.getDescription())
                         .startDate(goalRequest.getStartDate())
                         .endDate(goalRequest.getEndDate())
-                        .milestone(0)
-                        .totalTasks(goalRequest.getTotalTasks())
-                        .updates(new ArrayList<>())
+                        .milestones(new ArrayList<>())
                         .build();
         Goal savedGoal = goalRepository.save(newGoal);
         return GoalResponse.builder()
@@ -125,13 +111,12 @@ public class GoalService {
                 .description((savedGoal.getDescription()))
                 .startDate(savedGoal.getStartDate())
                 .endDate(savedGoal.getEndDate())
-                .milestone(savedGoal.getMilestone())
-                .totalTasks(savedGoal.getTotalTasks())
-                .updates(new ArrayList<>())
+                .milestones(new ArrayList<>())
+                .completedPercentage(0)
                 .build();
     }
 
-    public String updateGoalById(long goalId, GoalRequestUpdate goalRequestUpdate) {
+    public String updateGoalById(long goalId, GoalRequest goalRequest) {
         Goal goal = goalRepository.findById(goalId).orElse(null);
         if (goal == null) {
             throw new GoalNotFoundException("Goal not found");
@@ -139,12 +124,12 @@ public class GoalService {
         Goal updated =
                 Goal.builder()
                         .id(goal.getId())
-                        .title(goalRequestUpdate.getTitle())
-                        .description(goalRequestUpdate.getDescription())
-                        .startDate(goalRequestUpdate.getStartDate())
-                        .endDate(goalRequestUpdate.getEndDate())
-                        .totalTasks(goal.getTotalTasks())
-                        .updates(goal.getUpdates())
+                        .title(goalRequest.getTitle())
+                        .description(goalRequest.getDescription())
+                        .startDate(goalRequest.getStartDate())
+                        .endDate(goalRequest.getEndDate())
+                        .milestones(goal.getMilestones())
+                        .completedPercentage(goal.getCompletedPercentage())
                         .build();
         Goal saved = goalRepository.save(updated);
         return "Successfully updated the goal with ID " + saved.getId();
@@ -157,168 +142,103 @@ public class GoalService {
         goalRepository.deleteById(goalId);
     }
 
-    public GoalUpdateResponse addGoalUpdateToAGoal(
-            long goalId, GoalUpdateRequest goalUpdateRequest) {
+    public MilestoneResponse addMilestoneToAGoal(
+            long goalId, MilestoneRequest milestoneRequest) {
         Goal goal =
                 goalRepository
                         .findById(goalId)
                         .orElseThrow(() -> new GoalNotFoundException("Goal not found"));
-        Milestone newMilestone = Milestone.builder().build();
-        milestoneRepository.save(newMilestone);
 
-        int currentCompletedTask =
-                goal.getUpdates().stream()
-                        .mapToInt(goalUpdate -> goalUpdate.getCompletedTasks())
-                        .sum();
-        int difference = goal.getTotalTasks() - currentCompletedTask;
-        if (goalUpdateRequest.getCompletedTasks() > difference) {
-            throw new TaskCompletedException(
-                    "You only have " + difference + " tasks left to complete");
-        }
-
-        GoalUpdate update =
-                GoalUpdate.builder()
-                        .updateText(goalUpdateRequest.getUpdateText())
-                        .updatedDate(LocalDateTime.now())
-                        .completedTasks(goalUpdateRequest.getCompletedTasks())
-                        .milestone(newMilestone)
-                        .build();
-
-        GoalUpdate goalUpdateSaved = goalUpdateRepository.save(update);
-
-        int progress =
-                (int) (((double) goalUpdateSaved.getCompletedTasks() / goal.getTotalTasks()) * 100);
-
-        Milestone addedMilestone =
+        Milestone update =
                 Milestone.builder()
-                        .id(goalUpdateSaved.getMilestone().getId())
-                        .completedPercentage(progress)
-                        .build();
+                        .goalId(goal.getId())
+                        .updateText(milestoneRequest.getUpdateText())
+                        .updatedDate(LocalDateTime.now())
+                        .completed(milestoneRequest.isCompleted())
+                                .build();
 
-        Milestone saved = milestoneRepository.save(addedMilestone);
+        Milestone milestoneSaved = milestoneRepository.save(update);
+        goal.getMilestones().add(milestoneSaved);
+        long totalMilestones=goal.getMilestones().size();
+        long completedMilestones=goal.getMilestones()
+                .stream()
+                .filter(Milestone::isCompleted)
+                .count();
 
-        GoalUpdate finalUpdate =
-                GoalUpdate.builder()
-                        .id(goalUpdateSaved.getId())
-                        .updateText(goalUpdateSaved.getUpdateText())
-                        .updatedDate(goalUpdateSaved.getUpdatedDate())
-                        .completedTasks(goalUpdateSaved.getCompletedTasks())
-                        .milestone(saved)
-                        .build();
-
-        GoalUpdate savedGoalUpdate = goalUpdateRepository.save(finalUpdate);
-
-        goal.getUpdates().add(savedGoalUpdate);
-        int finalCompletedTask =
-                goal.getUpdates().stream()
-                        .mapToInt(goalUpdate -> goalUpdate.getCompletedTasks())
-                        .sum();
-        goal.updateMilestoneInGoal(finalCompletedTask, goal.getTotalTasks());
+        goal.updatePercentageInGoal(completedMilestones, totalMilestones);
         Goal savedGoal = goalRepository.save(goal);
 
-        return GoalUpdateResponse.builder()
-                .id(savedGoalUpdate.getId())
-                .updateText(savedGoalUpdate.getUpdateText())
-                .updatedDate(savedGoalUpdate.getUpdatedDate())
-                .completedTasks(savedGoalUpdate.getCompletedTasks())
-                .milestone(
-                        MilestoneResponse.builder()
-                                .id(savedGoalUpdate.getMilestone().getId())
-                                .completedPercentage(
-                                        savedGoalUpdate.getMilestone().getCompletedPercentage())
-                                .build())
+        return MilestoneResponse.builder()
+                .id(milestoneSaved.getId())
+                .goalId(goal.getId())
+                .updateText(milestoneSaved.getUpdateText())
+                .updatedDate(milestoneSaved.getUpdatedDate())
+                .completed(milestoneSaved.isCompleted())
                 .build();
     }
 
-    public String deleteGoalUpdate(long goalId, long goalUpdateId) {
+    public String deleteMilestone(long goalId, long milestoneId) {
         Goal goal =
                 goalRepository
                         .findById(goalId)
                         .orElseThrow(() -> new GoalNotFoundException("Goal not found"));
-        GoalUpdate goalUpdate =
-                goal.getUpdates().stream()
-                        .filter(g -> g.getId() == goalUpdateId)
+        Milestone milestone =
+                goal.getMilestones().stream()
+                        .filter(m -> m.getId() == milestoneId)
                         .findFirst()
                         .orElse(null);
-        if (goalUpdate == null) {
-            throw new GoalUpdateNotFoundException("GoalUpdate not found");
+        if (milestone == null) {
+            throw new MilestoneNotFoundException("Milestone not found");
         }
-        int removedCompletedTasks = goalUpdate.getCompletedTasks();
-        int totalBeforeRemove =
-                goal.getUpdates().stream().mapToInt(g -> g.getCompletedTasks()).sum();
-        int netCompletedTasks = totalBeforeRemove - removedCompletedTasks;
-        goal.getUpdates().remove(goalUpdate);
-        goalUpdateRepository.delete(goalUpdate);
-        goal.updateMilestoneInGoal(netCompletedTasks, goal.getTotalTasks());
+        goal.getMilestones().remove(milestone);
+        milestoneRepository.delete(milestone);
+        long totalMilestonesNow = goal.getMilestones().size();
+        long completedMilestones=
+                goal.getMilestones().stream().filter(Milestone::isCompleted)
+                        .count();
+        goal.updatePercentageInGoal(completedMilestones,totalMilestonesNow);
         goalRepository.save(goal);
-        return "Successfully deleted the GoalUpdate";
+        return "Successfully deleted the Milestone";
     }
 
-    public GoalUpdateResponse updateGoalUpdate(
-            long goalId, long goalUpdateId, GoalUpdateRequest goalUpdateRequest) {
+    public MilestoneResponse updateMilestone(
+            long goalId, long milestoneId, MilestoneRequest milestoneRequest) {
         Goal goal =
                 goalRepository
                         .findById(goalId)
                         .orElseThrow(() -> new GoalNotFoundException("Goal not found"));
-        GoalUpdate goalUpdate =
-                goal.getUpdates().stream()
-                        .filter(g -> g.getId() == goalUpdateId)
+        Milestone milestone =
+                goal.getMilestones().stream()
+                        .filter(m-> m.getId() == milestoneId)
                         .findFirst()
                         .orElse(null);
-        if (goalUpdate == null) {
-            throw new GoalUpdateNotFoundException("GoalUpdate not found");
-        }
-        int currentCompletedTask =
-                goal.getUpdates().stream().mapToInt(g -> g.getCompletedTasks()).sum();
-        int alreadyExistedTask = goalUpdate.getCompletedTasks();
-        int taskLeft = currentCompletedTask - alreadyExistedTask;
-        int allowedTasks = goal.getTotalTasks() - taskLeft;
-        if (goalUpdateRequest.getCompletedTasks() > allowedTasks) {
-            throw new TaskCompletedException(
-                    "You only have " + allowedTasks + " tasks to complete");
-        }
-        int progress =
-                (int)
-                        (((double) goalUpdateRequest.getCompletedTasks() / goal.getTotalTasks())
-                                * 100);
-
-        Milestone milestone = goalUpdate.getMilestone();
-        if (milestone != null) {
-            Milestone updatedMilestone =
-                    Milestone.builder().id(milestone.getId()).completedPercentage(progress).build();
-
-            milestoneRepository.save(updatedMilestone);
+        if (milestone == null) {
+            throw new MilestoneNotFoundException("Milestone not found");
         }
 
-        GoalUpdate updatedGoalUpdate =
-                GoalUpdate.builder()
-                        .id(goalUpdate.getId())
+        Milestone updatedMilestone =
+                Milestone.builder()
+                        .id(milestone.getId())
+                        .goalId(goal.getId())
                         .updatedDate(LocalDateTime.now())
-                        .updateText(goalUpdateRequest.getUpdateText())
-                        .completedTasks(goalUpdateRequest.getCompletedTasks())
-                        .milestone(goalUpdate.getMilestone())
+                        .updateText(milestoneRequest.getUpdateText())
+                        .completed(milestoneRequest.isCompleted())
                         .build();
 
-        GoalUpdate saved = goalUpdateRepository.save(updatedGoalUpdate);
-        int finalCompletedTask =
-                goal.getUpdates().stream().mapToInt(g -> g.getCompletedTasks()).sum();
-        goal.updateMilestoneInGoal(finalCompletedTask, goal.getTotalTasks());
+        Milestone saved = milestoneRepository.save(updatedMilestone);
+        long totalMilestones=goal.getMilestones().size();
+        long completedMilestones=goal.getMilestones()
+                .stream()
+                .filter(Milestone::isCompleted)
+                        .count();
+        goal.updatePercentageInGoal(completedMilestones, totalMilestones);
         goalRepository.save(goal);
-        return GoalUpdateResponse.builder()
+        return MilestoneResponse.builder()
                 .id(saved.getId())
+                .goalId(goal.getId())
                 .updatedDate(saved.getUpdatedDate())
                 .updateText(saved.getUpdateText())
-                .completedTasks(saved.getCompletedTasks())
-                .milestone(mapNewMilestoneResponse(saved.getMilestone()))
+                .completed(saved.isCompleted())
                 .build();
-    }
-
-    private MilestoneResponse mapNewMilestoneResponse(Milestone milestone) {
-        return milestone != null
-                ? MilestoneResponse.builder()
-                        .id(milestone.getId())
-                        .completedPercentage(milestone.getCompletedPercentage())
-                        .build()
-                : null;
     }
 }

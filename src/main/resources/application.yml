@@ -5,7 +5,7 @@ spring:
       max-request-size: 10MB
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/Goal-Manager
+    url: jdbc:postgresql://localhost:5432/GoalManagement
     username: postgres
     password: jessinedstem
     driver-class-name: org.postgresql.Driver

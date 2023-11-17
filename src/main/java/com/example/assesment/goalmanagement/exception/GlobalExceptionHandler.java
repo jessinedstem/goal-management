@@ -22,11 +22,4 @@ public class GlobalExceptionHandler {
     public String handleGoalNotFoundException(GoalNotFoundException ex) {
         return ex.getMessage();
     }
-
-    @ExceptionHandler(TaskCompletedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public String TaskCompletedException(TaskCompletedException ex) {
-        return ex.getMessage();
-    }
-}
+   }
