@@ -1,13 +1,12 @@
 package com.example.assesment.goalmanagement.contract;
 
-
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -20,6 +19,4 @@ public class MilestoneRequest {
 
     @NotNull(message = "Completed is mandatory")
     private boolean completed;
-
 }
-
