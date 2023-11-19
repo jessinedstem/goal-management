@@ -1,7 +1,7 @@
 package com.example.assesment.goalmanagement.controller;
 
-import com.example.assesment.goalmanagement.contract.GoalResponse;
 import com.example.assesment.goalmanagement.contract.GoalRequest;
+import com.example.assesment.goalmanagement.contract.GoalResponse;
 import com.example.assesment.goalmanagement.contract.MilestoneRequest;
 import com.example.assesment.goalmanagement.contract.MilestoneResponse;
 import com.example.assesment.goalmanagement.service.GoalService;

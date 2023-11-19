@@ -22,5 +22,4 @@ public class GoalRequest {
 
     @NotNull(message = "End date should not be null")
     private LocalDate endDate;
-
-    }
+}

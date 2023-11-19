@@ -22,4 +22,4 @@ public class GlobalExceptionHandler {
     public String handleGoalNotFoundException(GoalNotFoundException ex) {
         return ex.getMessage();
     }
-   }
+}
