@@ -7,10 +7,9 @@ import com.example.assesment.goalmanagement.contract.MilestoneResponse;
 import com.example.assesment.goalmanagement.service.GoalService;
 import jakarta.validation.Valid;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,16 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/goals")
+@RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
-
-    @Autowired
-    public GoalController(GoalService goalService) {
-
-        this.goalService = goalService;
-    }
 
     @GetMapping()
     public ResponseEntity<List<GoalResponse>> getAllGoals(
@@ -61,9 +54,9 @@ public class GoalController {
     }
 
     @DeleteMapping("/{goalId}")
-    public ResponseEntity<String> deleteGoalById(@PathVariable long goalId) {
+    public ResponseEntity<Void> deleteGoalById(@PathVariable long goalId) {
         goalService.deleteGoalById(goalId);
-        return ResponseEntity.ok("Goal " + goalId + " deleted.");
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{goalId}")
@@ -74,17 +67,17 @@ public class GoalController {
     }
 
     @DeleteMapping("/{goalId}/milestone/{milestoneId}")
-    public ResponseEntity<String> deleteMilestone(
+    public ResponseEntity<Void> deleteMilestone(
             @PathVariable long goalId, @PathVariable long milestoneId) {
-        String response = goalService.deleteMilestone(goalId, milestoneId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        goalService.deleteMilestone(goalId, milestoneId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{goalId}/{milestoneId}")
     public ResponseEntity<MilestoneResponse> updateMilestone(
             @PathVariable long goalId,
             @PathVariable long milestoneId,
-            @RequestBody MilestoneRequest milestoneRequest) {
+            @Valid @RequestBody MilestoneRequest milestoneRequest) {
         MilestoneResponse response =
                 goalService.updateMilestone(goalId, milestoneId, milestoneRequest);
         return ResponseEntity.ok(response);

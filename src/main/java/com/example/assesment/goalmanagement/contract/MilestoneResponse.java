@@ -15,5 +15,5 @@ public class MilestoneResponse {
     private long goalId;
     private LocalDateTime updatedDate;
     private String updateText;
-    private boolean completed;
+    private Boolean completed;
 }

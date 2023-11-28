@@ -1,13 +1,12 @@
 package com.example.assesment.goalmanagement.controller;
 
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,12 +61,11 @@ public class GoalControllerTest {
 
     @Test
     public void testCreateAGoal() throws Exception {
-        long goalId = 1L;
         GoalRequest goalRequest =
                 GoalRequest.builder()
                         .title("Test Goal")
                         .description("Test Goal Description")
-                        .startDate(LocalDate.of(2023, 01, 01))
+                        .startDate(LocalDate.of(2023, 12, 1))
                         .endDate(LocalDate.of(2023, 12, 31))
                         .build();
         GoalResponse mockResponse =
@@ -75,7 +73,7 @@ public class GoalControllerTest {
                         .id(1L)
                         .title("Test Goal")
                         .description("Test Goal Description")
-                        .startDate(LocalDate.of(2023, 01, 01))
+                        .startDate(LocalDate.of(2023, 12, 1))
                         .endDate(LocalDate.of(2023, 12, 31))
                         .completedPercentage(60.0)
                         .build();
@@ -87,7 +85,8 @@ public class GoalControllerTest {
                         post("/goals")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(goalRequest)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @Test
@@ -97,19 +96,18 @@ public class GoalControllerTest {
                 GoalRequest.builder()
                         .title("Updated Goal")
                         .description("Updated Goal Description")
-                        .startDate(LocalDate.of(2023, 12, 01))
+                        .startDate(LocalDate.of(2023, 12, 1))
                         .endDate(LocalDate.of(2023, 12, 31))
                         .build();
 
-        GoalResponse mockGoalResponse =
-                GoalResponse.builder()
-                        .id(goalId)
-                        .title(goalRequest.getTitle())
-                        .description(goalRequest.getDescription())
-                        .startDate(goalRequest.getStartDate())
-                        .endDate(goalRequest.getEndDate())
-                        .completedPercentage(60.0)
-                        .build();
+        GoalResponse.builder()
+                .id(goalId)
+                .title(goalRequest.getTitle())
+                .description(goalRequest.getDescription())
+                .startDate(goalRequest.getStartDate())
+                .endDate(goalRequest.getEndDate())
+                .completedPercentage(60.0)
+                .build();
         when(goalService.updateGoalById(goalId, goalRequest))
                 .thenReturn("Successfully updated the goal");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -124,7 +122,6 @@ public class GoalControllerTest {
 
     @Test
     public void testMilestoneToAGoal() throws Exception {
-        long milestoneId = 1L;
         long goalId = 1L;
         MilestoneRequest milestoneRequest =
                 MilestoneRequest.builder().updateText("New Update").completed(true).build();
@@ -150,27 +147,16 @@ public class GoalControllerTest {
     @Test
     public void testDeleteGoalById() throws Exception {
         long goalId = 1L;
-        doNothing().when(goalService).deleteGoalById(goalId);
-
-        mockMvc.perform(delete("/goals/{goalId}", goalId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Goal " + goalId + " deleted."));
+        mockMvc.perform(delete("/goals/{goalId}", goalId)).andExpect(status().isNoContent());
+        verify(goalService).deleteGoalById(goalId);
     }
 
     @Test
     public void testDeleteMilestone() throws Exception {
         long goalId = 1L;
-        long milestoneId = 2L;
-        String mockResponse = "Successfully deleted the Milestone";
-
-        when(goalService.deleteMilestone(goalId, milestoneId))
-                .thenReturn("Milestone deleted successfully");
-
-        mockMvc.perform(
-                        delete("/goals/{goalId}/milestone/{milestoneId}", goalId, milestoneId)
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Milestone deleted successfully"));
+        long milestoneId = 101L;
+        mockMvc.perform(delete("/goals/{goalId}/milestone/{milestoneId}", goalId, milestoneId))
+                .andExpect(status().isNoContent());
 
         verify(goalService).deleteMilestone(goalId, milestoneId);
     }
@@ -192,7 +178,7 @@ public class GoalControllerTest {
                         .goalId(goalId)
                         .updatedDate(LocalDateTime.now())
                         .updateText(request.getUpdateText())
-                        .completed(request.isCompleted())
+                        .completed(request.getCompleted())
                         .build();
 
         when(goalService.updateMilestone(goalId, milestoneId, request)).thenReturn(mockResponse);

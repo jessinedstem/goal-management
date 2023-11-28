@@ -22,4 +22,11 @@ public class GlobalExceptionHandler {
     public String handleGoalNotFoundException(GoalNotFoundException ex) {
         return ex.getMessage();
     }
+
+    @ExceptionHandler(MilestoneNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public String handleMilestoneNotFoundException(MilestoneNotFoundException ex) {
+        return ex.getMessage();
+    }
 }
