@@ -25,5 +25,5 @@ public class Milestone {
     private long goalId;
     private String updateText;
     private LocalDateTime updatedDate;
-    private boolean completed;
+    private Boolean completed;
 }

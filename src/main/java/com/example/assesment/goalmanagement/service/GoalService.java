@@ -14,52 +14,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
     private final MilestoneRepository milestoneRepository;
 
-    @Autowired
-    public GoalService(GoalRepository goalRepository, MilestoneRepository milestoneRepository) {
-        this.goalRepository = goalRepository;
-        this.milestoneRepository = milestoneRepository;
-    }
+    private final ModelMapper modelMapper;
 
     public List<GoalResponse> findAllGoals(int pageNumber, int pageSize) {
         Page<Goal> goalPage = goalRepository.findAll(PageRequest.of(pageNumber, pageSize));
         return goalPage.getContent().stream()
-                .map(this::mapToGoalResponse)
+                .map(goal -> modelMapper.map(goal, GoalResponse.class))
                 .collect(Collectors.toList());
-    }
-
-    public GoalResponse mapToGoalResponse(Goal goal) {
-        List<MilestoneResponse> updateResponses =
-                goal.getMilestones().stream()
-                        .map(this::mapToMilestoneResponse)
-                        .collect(Collectors.toList());
-        return GoalResponse.builder()
-                .id(goal.getId())
-                .title(goal.getTitle())
-                .description(goal.getDescription())
-                .startDate(goal.getStartDate())
-                .endDate(goal.getEndDate())
-                .milestones(updateResponses)
-                .build();
-    }
-
-    public MilestoneResponse mapToMilestoneResponse(Milestone update) {
-        return MilestoneResponse.builder()
-                .id(update.getId())
-                .goalId(update.getGoalId())
-                .updateText(update.getUpdateText())
-                .updatedDate(update.getUpdatedDate())
-                .completed(update.isCompleted())
-                .build();
     }
 
     public GoalResponse findGoalById(long goalId) {
@@ -67,26 +40,7 @@ public class GoalService {
                 goalRepository
                         .findById(goalId)
                         .orElseThrow(() -> new GoalNotFoundException("Goal not found"));
-        return GoalResponse.builder()
-                .id(goal.getId())
-                .title(goal.getTitle())
-                .description(goal.getDescription())
-                .startDate(goal.getStartDate())
-                .endDate(goal.getEndDate())
-                .completedPercentage(goal.getCompletedPercentage())
-                .milestones(
-                        goal.getMilestones().stream()
-                                .map(
-                                        milestone ->
-                                                MilestoneResponse.builder()
-                                                        .id(milestone.getId())
-                                                        .goalId(goal.getId())
-                                                        .updateText(milestone.getUpdateText())
-                                                        .updatedDate(milestone.getUpdatedDate())
-                                                        .completed(milestone.isCompleted())
-                                                        .build())
-                                .collect(Collectors.toList()))
-                .build();
+        return modelMapper.map(goal, GoalResponse.class);
     }
 
     public GoalResponse createGoal(GoalRequest goalRequest) {
@@ -99,22 +53,15 @@ public class GoalService {
                         .milestones(new ArrayList<>())
                         .build();
         Goal savedGoal = goalRepository.save(newGoal);
-        return GoalResponse.builder()
-                .id(savedGoal.getId())
-                .title(savedGoal.getTitle())
-                .description((savedGoal.getDescription()))
-                .startDate(savedGoal.getStartDate())
-                .endDate(savedGoal.getEndDate())
-                .milestones(new ArrayList<>())
-                .completedPercentage(0)
-                .build();
+        return modelMapper.map(savedGoal, GoalResponse.class);
     }
 
     public String updateGoalById(long goalId, GoalRequest goalRequest) {
-        Goal goal = goalRepository.findById(goalId).orElse(null);
-        if (goal == null) {
-            throw new GoalNotFoundException("Goal not found");
-        }
+        Goal goal =
+                goalRepository
+                        .findById(goalId)
+                        .orElseThrow(() -> new GoalNotFoundException("Goal not found"));
+
         Goal updated =
                 Goal.builder()
                         .id(goal.getId())
@@ -147,28 +94,21 @@ public class GoalService {
                         .goalId(goal.getId())
                         .updateText(milestoneRequest.getUpdateText())
                         .updatedDate(LocalDateTime.now())
-                        .completed(milestoneRequest.isCompleted())
+                        .completed(milestoneRequest.getCompleted())
                         .build();
 
         Milestone milestoneSaved = milestoneRepository.save(update);
         goal.getMilestones().add(milestoneSaved);
         long totalMilestones = goal.getMilestones().size();
         long completedMilestones =
-                goal.getMilestones().stream().filter(Milestone::isCompleted).count();
+                goal.getMilestones().stream().filter(Milestone::getCompleted).count();
 
         goal.updatePercentageInGoal(completedMilestones, totalMilestones);
-        Goal savedGoal = goalRepository.save(goal);
-
-        return MilestoneResponse.builder()
-                .id(milestoneSaved.getId())
-                .goalId(goal.getId())
-                .updateText(milestoneSaved.getUpdateText())
-                .updatedDate(milestoneSaved.getUpdatedDate())
-                .completed(milestoneSaved.isCompleted())
-                .build();
+        goalRepository.save(goal);
+        return modelMapper.map(milestoneSaved, MilestoneResponse.class);
     }
 
-    public String deleteMilestone(long goalId, long milestoneId) {
+    public void deleteMilestone(long goalId, long milestoneId) {
         Goal goal =
                 goalRepository
                         .findById(goalId)
@@ -177,18 +117,15 @@ public class GoalService {
                 goal.getMilestones().stream()
                         .filter(m -> m.getId() == milestoneId)
                         .findFirst()
-                        .orElse(null);
-        if (milestone == null) {
-            throw new MilestoneNotFoundException("Milestone not found");
-        }
+                        .orElseThrow(() -> new MilestoneNotFoundException("Milestone not found"));
+
         goal.getMilestones().remove(milestone);
         milestoneRepository.delete(milestone);
         long totalMilestonesNow = goal.getMilestones().size();
         long completedMilestones =
-                goal.getMilestones().stream().filter(Milestone::isCompleted).count();
+                goal.getMilestones().stream().filter(Milestone::getCompleted).count();
         goal.updatePercentageInGoal(completedMilestones, totalMilestonesNow);
         goalRepository.save(goal);
-        return "Successfully deleted the Milestone";
     }
 
     public MilestoneResponse updateMilestone(
@@ -201,10 +138,7 @@ public class GoalService {
                 goal.getMilestones().stream()
                         .filter(m -> m.getId() == milestoneId)
                         .findFirst()
-                        .orElse(null);
-        if (milestone == null) {
-            throw new MilestoneNotFoundException("Milestone not found");
-        }
+                        .orElseThrow(() -> new MilestoneNotFoundException("Milestone not found"));
 
         Milestone updatedMilestone =
                 Milestone.builder()
@@ -212,21 +146,15 @@ public class GoalService {
                         .goalId(goal.getId())
                         .updatedDate(LocalDateTime.now())
                         .updateText(milestoneRequest.getUpdateText())
-                        .completed(milestoneRequest.isCompleted())
+                        .completed(milestoneRequest.getCompleted())
                         .build();
 
         Milestone saved = milestoneRepository.save(updatedMilestone);
         long totalMilestones = goal.getMilestones().size();
         long completedMilestones =
-                goal.getMilestones().stream().filter(Milestone::isCompleted).count();
+                goal.getMilestones().stream().filter(Milestone::getCompleted).count();
         goal.updatePercentageInGoal(completedMilestones, totalMilestones);
         goalRepository.save(goal);
-        return MilestoneResponse.builder()
-                .id(saved.getId())
-                .goalId(goal.getId())
-                .updatedDate(saved.getUpdatedDate())
-                .updateText(saved.getUpdateText())
-                .completed(saved.isCompleted())
-                .build();
+        return modelMapper.map(saved, MilestoneResponse.class);
     }
 }

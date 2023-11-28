@@ -17,6 +17,6 @@ public class GoalResponse {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<MilestoneResponse> milestones;
     private double completedPercentage;
+    private List<MilestoneResponse> milestones;
 }
