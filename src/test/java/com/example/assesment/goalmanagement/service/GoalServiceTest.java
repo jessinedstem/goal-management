@@ -6,10 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.example.assesment.goalmanagement.contract.GoalRequest;
 import com.example.assesment.goalmanagement.contract.GoalResponse;
@@ -38,14 +35,22 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 public class GoalServiceTest {
-    @InjectMocks private GoalService goalService;
-    @Mock private GoalRepository goalRepository;
-    @Mock private MilestoneRepository milestoneRepository;
-    @Mock private ModelMapper modelMapper;
-
+//    @InjectMocks private GoalService goalService;
+//    @Mock private GoalRepository goalRepository;
+//    @Mock private MilestoneRepository milestoneRepository;
+//    @Mock private ModelMapper modelMapper;
+private GoalRepository goalRepository;
+private MilestoneRepository milestoneRepository;
+private ModelMapper modelMapper;
+private GoalService goalService;
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
+        goalRepository=mock(GoalRepository.class);
+        milestoneRepository=mock(MilestoneRepository.class);
+        modelMapper=mock(ModelMapper.class);
+        goalService=new GoalService(goalRepository,milestoneRepository,modelMapper);
+
     }
 
     @Test
@@ -74,6 +79,7 @@ public class GoalServiceTest {
 
         List<GoalResponse> goalResponses = goalService.findAllGoals(0, 2);
 
+        System.out.println(goalResponses.toString());
         assertEquals(mockGoals.size(), goalResponses.size());
         assertEquals("Goal 1", goalResponses.get(0).getTitle());
         assertEquals("Goal 2", goalResponses.get(1).getTitle());

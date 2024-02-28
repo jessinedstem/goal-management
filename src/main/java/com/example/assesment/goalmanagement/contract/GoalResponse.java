@@ -19,4 +19,17 @@ public class GoalResponse {
     private LocalDate endDate;
     private double completedPercentage;
     private List<MilestoneResponse> milestones;
+
+    @Override
+    public String toString() {
+        return "GoalResponse{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", completedPercentage=" + completedPercentage +
+                ", milestones=" + milestones +
+                '}';
+    }
 }

@@ -54,7 +54,7 @@ public class GoalControllerTest {
         long goalId = 1L;
         GoalResponse mockGoalResponse = new GoalResponse();
         when(goalService.findGoalById(goalId)).thenReturn(mockGoalResponse);
-        mockMvc.perform(get("/goals/{goalId}", goalId).contentType(MediaType.APPLICATION_JSON))
+        MockMvc.perform(get("/goals/{goalId}", goalId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mockGoalResponse.getId()));
     }

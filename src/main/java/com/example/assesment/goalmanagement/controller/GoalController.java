@@ -40,7 +40,7 @@ public class GoalController {
         return ResponseEntity.ok(goal);
     }
 
-    @PostMapping()
+      @PostMapping()
     public ResponseEntity<GoalResponse> createAGoal(@Valid @RequestBody GoalRequest goalRequest) {
         GoalResponse response = goalService.createGoal(goalRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
